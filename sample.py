@@ -236,9 +236,9 @@ def main():
                num_return_sequences=args.batch_size, temp=args.t, top_p=args.p, max_length_sample=args.max_length)[0]
         truncation = truncate(completion)
 
-        print('=' * 100)
-        print(completion)
-        print('=' * 100)
+        # print('=' * 100)
+        # print(completion)
+        # print('=' * 100)
         print(args.context + truncation)
         print('=' * 100)
 
