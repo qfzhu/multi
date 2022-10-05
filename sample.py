@@ -11,8 +11,7 @@ import argparse
 
 import torch
 
-from transformers import GPT2TokenizerFast
-from jaxformer.hf.codegen.modeling_codegen import CodeGenForCausalLM
+from transformers import GPT2TokenizerFast, CodeGenForCausalLM
 
 
 ########################################################################
@@ -210,7 +209,7 @@ def main():
     if args.model.startswith("codegen-16B"):
         use_fp16 = True
 
-    ckpt = f'./checkpoints/{args.model}'
+    ckpt = f'Salesforce/{args.model}'
 
     # (3) load
 
