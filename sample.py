@@ -196,7 +196,7 @@ def main():
     parser.add_argument('--batch-size', type=int, default=1)
     # parser.add_argument('--no-fp16', action="store_true")
     parser.add_argument('--pad', type=int, default=50256)
-    parser.add_argument('--context', type=str, default='def helloworld():')
+    # parser.add_argument('--context', type=str, default='def helloworld():')
     args = parser.parse_args()
 
     # (2) preamble
@@ -230,16 +230,18 @@ def main():
 
     # (4) sample
 
-    with print_time('sampling'):
+    while True:
+        print('Please input: ')
+        context = "'''" + input() + "'''"
         completion = \
-        sample(device=device, model=model, tokenizer=tokenizer, context=args.context, pad_token_id=args.pad,
+        sample(device=device, model=model, tokenizer=tokenizer, context=context, pad_token_id=args.pad,
                num_return_sequences=args.batch_size, temp=args.t, top_p=args.p, max_length_sample=args.max_length)[0]
         truncation = truncate(completion)
 
         # print('=' * 100)
         # print(completion)
         # print('=' * 100)
-        print(args.context + truncation)
+        print(context + truncation)
         print('=' * 100)
 
 
