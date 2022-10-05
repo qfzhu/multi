@@ -55,12 +55,15 @@ def cast(model, fp16=True):
 # model
 
 
-def create_model(ckpt, fp16=True):
-    if fp16:
-        return CodeGenForCausalLM.from_pretrained(ckpt, revision='float16', torch_dtype=torch.float16,
-                                                  low_cpu_mem_usage=True)
-    else:
-        return CodeGenForCausalLM.from_pretrained(ckpt)
+# def create_model(ckpt, fp16=True):
+#     if fp16:
+#         return CodeGenForCausalLM.from_pretrained(ckpt, revision='float16', torch_dtype=torch.float16,
+#                                                   low_cpu_mem_usage=True)
+#     else:
+#         return CodeGenForCausalLM.from_pretrained(ckpt)
+
+def create_model(ckpt):
+    return CodeGenForCausalLM.from_pretrained(ckpt)
 
 
 def create_tokenizer():
@@ -191,7 +194,7 @@ def main():
     parser.add_argument('--t', type=float, default=0.2)
     parser.add_argument('--max-length', type=int, default=128)
     parser.add_argument('--batch-size', type=int, default=1)
-    parser.add_argument('--no-fp16', action="store_true")
+    # parser.add_argument('--no-fp16', action="store_true")
     parser.add_argument('--pad', type=int, default=50256)
     parser.add_argument('--context', type=str, default='def helloworld():')
     args = parser.parse_args()
@@ -202,19 +205,20 @@ def main():
     set_seed(args.rng_seed, deterministic=args.rng_deterministic)
     device = torch.device(args.device)
 
-    use_fp16 = True
-    if (args.no_fp16 or device.type == "cpu"):
-        use_fp16 = False
-
-    if args.model.startswith("codegen-16B"):
-        use_fp16 = True
+    # use_fp16 = True
+    # if (args.no_fp16 or device.type == "cpu"):
+    #     use_fp16 = False
+    #
+    # if args.model.startswith("codegen-16B"):
+    #     use_fp16 = True
 
     ckpt = f'Salesforce/{args.model}'
 
     # (3) load
 
     with print_time('loading parameters'):
-        model = create_model(ckpt=ckpt, fp16=use_fp16).to(device)
+        # model = create_model(ckpt=ckpt, fp16=use_fp16).to(device)
+        model = create_model(ckpt=ckpt).to(device)
 
     with print_time('loading tokenizer'):
         if args.model in models_pl:
