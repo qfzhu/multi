@@ -234,13 +234,16 @@ def main():
     problems = read_problems()
 
     num_samples_per_task = 200
-    samples = [
-        dict(task_id=task_id, completion=truncate(sample(
-            device=device, model=model, tokenizer=tokenizer, context=problems[task_id]["prompt"], pad_token_id=args.pad,
-            num_return_sequences=args.batch_size, temp=args.t, top_p=args.p, max_length_sample=args.max_length)[0]))
-        for task_id in problems
-        for _ in range(num_samples_per_task)
-    ]
+
+    with print_time('sampling'):
+        samples = [
+            dict(task_id=task_id, completion=truncate(sample(
+                device=device, model=model, tokenizer=tokenizer, context=problems[task_id]["prompt"], pad_token_id=args.pad,
+                num_return_sequences=args.batch_size, temp=args.t, top_p=args.p, max_length_sample=args.max_length)[0]))
+            for task_id in problems
+            for _ in range(num_samples_per_task)
+        ]
+
     write_jsonl("samples.jsonl", samples)
 
 
