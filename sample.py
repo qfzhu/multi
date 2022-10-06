@@ -193,7 +193,7 @@ def main():
     parser.add_argument('--rng-deterministic', type=bool, default=True)
     parser.add_argument('--p', type=float, default=0.95)
     parser.add_argument('--t', type=float, default=0.2)
-    parser.add_argument('--max-length', type=int, default=128)
+    parser.add_argument('--max-length', type=int, default=512)
     parser.add_argument('--batch-size', type=int, default=1)
     # parser.add_argument('--no-fp16', action="store_true")
     parser.add_argument('--pad', type=int, default=50256)
