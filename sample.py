@@ -123,7 +123,7 @@ def sample(
             do_sample=True,
             num_return_sequences=num_return_sequences,
             temperature=temp,
-            max_length=input_ids_len + max_length_sample,
+            max_new_tokens=max_length_sample,
             top_p=top_p,
             pad_token_id=pad_token_id,
             use_cache=True,
@@ -198,6 +198,7 @@ def main():
     # parser.add_argument('--no-fp16', action="store_true")
     parser.add_argument('--pad', type=int, default=50256)
     # parser.add_argument('--context', type=str, default='def helloworld():')
+    parser.add_argument('--output', type=str, default='samples.jsonl')
     args = parser.parse_args()
 
     # (2) preamble
@@ -244,7 +245,7 @@ def main():
             for _ in range(num_samples_per_task)
         ]
 
-    write_jsonl("samples.jsonl", samples)
+    write_jsonl(args.output, samples)
 
 
 if __name__ == '__main__':
