@@ -1,27 +1,7 @@
 import json
 import gzip
 import os
-
-
-def read_problems(evalset_file):
-    return {task["task_id"]: task for task in stream_jsonl(evalset_file)}
-
-
-def stream_jsonl(filename):
-    """
-    Parses each jsonl line and yields it as a dictionary
-    """
-    if filename.endswith(".gz"):
-        with open(filename, "rb") as gzfp:
-            with gzip.open(gzfp, 'rt') as fp:
-                for line in fp:
-                    if any(not x.isspace() for x in line):
-                        yield json.loads(line)
-    else:
-        with open(filename, "r") as fp:
-            for line in fp:
-                if any(not x.isspace() for x in line):
-                    yield json.loads(line)
+from human_eval.data import read_problems
 
 
 def extract_prompt():
