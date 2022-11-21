@@ -2,7 +2,6 @@ import json
 import gzip
 import os
 import sys
-
 from human_eval.data import read_problems
 
 
