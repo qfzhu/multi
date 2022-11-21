@@ -19,4 +19,4 @@ def extract_prompt(path):
 
 if __name__ == '__main__':
     path = sys.argv[1]  # path to HumanEval.json.gz
-    extract_prompt()
+    extract_prompt(path)
