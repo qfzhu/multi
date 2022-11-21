@@ -16,5 +16,5 @@ def to_human_eval_format(path):
 
 
 if __name__ == '__main__':
-    path = sys.argv[1]
+    path = sys.argv[1]  # path to coderl ouptuts/codes dir
     to_human_eval_format(path)
