@@ -1,4 +1,5 @@
 import torch
+import time
 from unixcoder import UniXcoder
 from human_eval.data import write_jsonl, read_problems
 
@@ -14,13 +15,22 @@ class print_time:
         print(f'{self.desc} took {time.time() - self.t:.02f}s')
 
 
+def generate_for_problem(context, beam_size):
+    context = '"""' + 'Create a python function. ' + context + '"""'
+    tokens_ids = model.tokenize([context],max_length=512,mode="<encoder-decoder>")
+    source_ids = torch.tensor(tokens_ids).to(device)
+    prediction_ids = model.generate(source_ids, decoder_only=False, beam_size=beam_size, max_length=512)
+    predictions = model.decode(prediction_ids)
+    return([x.replace("<mask0>","").strip() for x in predictions[0]])
+
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = UniXcoder("microsoft/unixcoder-base")
 model.to(device)
 
 problems = read_problems()
 
-num_samples_per_task = 100
+num_samples_per_task = 10
 
 with print_time('sampling'):
     samples = []
@@ -30,12 +40,3 @@ with print_time('sampling'):
             samples.append(dict(task_id=task_id, completion=sol))
 
 write_jsonl('unixcoder.jsonl', samples)
-
-
-def generate_for_problem(context, beam_size):
-    context = '"""' + 'Create a python function. ' + context + '"""'
-    tokens_ids = model.tokenize([context],max_length=512,mode="<encoder-decoder>")
-    source_ids = torch.tensor(tokens_ids).to(device)
-    prediction_ids = model.generate(source_ids, decoder_only=False, beam_size=beam_size, max_length=512)
-    predictions = model.decode(prediction_ids)
-    return([x.replace("<mask0>","").strip() for x in predictions[0]])
