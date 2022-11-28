@@ -2,6 +2,18 @@ import torch
 from unixcoder import UniXcoder
 from human_eval.data import write_jsonl, read_problems
 
+class print_time:
+    def __init__(self, desc):
+        self.desc = desc
+
+    def __enter__(self):
+        print(self.desc)
+        self.t = time.time()
+
+    def __exit__(self, type, value, traceback):
+        print(f'{self.desc} took {time.time() - self.t:.02f}s')
+
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = UniXcoder("microsoft/unixcoder-base")
 model.to(device)
