@@ -11,7 +11,7 @@ import argparse
 
 import torch
 
-from transformers import GPT2TokenizerFast, CodeGenForCausalLM
+from transformers import LlamaForCausalLM, LlamaTokenizer
 from human_eval.data import write_jsonl, read_problems
 
 
@@ -64,29 +64,11 @@ def cast(model, fp16=True):
 #         return CodeGenForCausalLM.from_pretrained(ckpt)
 
 def create_model(ckpt):
-    return CodeGenForCausalLM.from_pretrained(ckpt)
+    return LlamaForCausalLM.from_pretrained(ckpt)
 
 
-def create_tokenizer():
-    t = GPT2TokenizerFast.from_pretrained('gpt2')
-    t.max_model_input_sizes['gpt2'] = 1e20
-    return t
-
-
-def include_whitespace(t, n_min=2, n_max=20, as_special_tokens=False):
-    t.add_tokens([' ' * n for n in reversed(range(n_min, n_max))], special_tokens=as_special_tokens)
-    return t
-
-
-def include_tabs(t, n_min=2, n_max=20, as_special_tokens=False):
-    t.add_tokens(['\t' * n for n in reversed(range(n_min, n_max))], special_tokens=as_special_tokens)
-    return t
-
-
-def create_custom_gpt2_tokenizer():
-    t = create_tokenizer()
-    t = include_whitespace(t=t, n_min=2, n_max=32, as_special_tokens=False)
-    t = include_tabs(t=t, n_min=2, n_max=10, as_special_tokens=False)
+def create_tokenizer(ckpt):
+    t = LlamaTokenizer.from_pretrained(ckpt)
     return t
 
 
@@ -125,7 +107,6 @@ def sample(
             temperature=temp,
             max_new_tokens=max_length_sample,
             top_p=top_p,
-            pad_token_id=pad_token_id,
             use_cache=True,
         )
         text = tokenizer.batch_decode(tokens[:, input_ids_len:, ...])
@@ -177,17 +158,11 @@ def test_truncate():
 
 
 def main():
-    # (0) constants
-
-    models_nl = ['codegen-350M-nl', 'codegen-2B-nl', 'codegen-6B-nl', 'codegen-16B-nl']
-    models_pl = ['codegen-350M-multi', 'codegen-2B-multi', 'codegen-6B-multi', 'codegen-16B-multi', 'codegen-350M-mono',
-                 'codegen-2B-mono', 'codegen-6B-mono', 'codegen-16B-mono']
-    models = models_nl + models_pl
 
     # (1) params
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', type=str, choices=models, default='codegen-350M-mono')
+    parser.add_argument('--model', type=str, default='/users2/qfzhu/llama/7B-hf/')
     parser.add_argument('--device', type=str, default='cuda:0')
     parser.add_argument('--rng-seed', type=int, default=42)
     parser.add_argument('--rng-deterministic', type=bool, default=True)
@@ -214,7 +189,7 @@ def main():
     # if args.model.startswith("codegen-16B"):
     #     use_fp16 = True
 
-    ckpt = f'Salesforce/{args.model}'
+    ckpt = args.model
 
     # (3) load
 
@@ -223,12 +198,7 @@ def main():
         model = create_model(ckpt=ckpt).to(device)
 
     with print_time('loading tokenizer'):
-        if args.model in models_pl:
-            tokenizer = create_custom_gpt2_tokenizer()
-        else:
-            tokenizer = create_tokenizer()
-        tokenizer.padding_side = 'left'
-        tokenizer.pad_token = args.pad
+        tokenizer = create_tokenizer(ckpt)
 
     # (4) sample
 
